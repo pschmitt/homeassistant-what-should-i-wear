@@ -1,0 +1,19 @@
+{
+  "domain": "what_should_i_wear",
+  "name": "What Should I Wear?",
+  "codeowners": [
+    "@pschmitt"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/pschmitt/homeassistant-what-should-i-wear",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/pschmitt/homeassistant-what-should-i-wear/issues",
+  "loggers": [
+    "custom_components.what_should_i_wear"
+  ],
+  "after_dependencies": [
+    "weather"
+  ],
+  "version": "0.1.0"
+}

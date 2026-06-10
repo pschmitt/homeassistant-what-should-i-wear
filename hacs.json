@@ -1,0 +1,8 @@
+{
+  "name": "What Should I Wear?",
+  "domains": [
+    "what_should_i_wear"
+  ],
+  "homeassistant": "2026.6.0",
+  "render_readme": true
+}

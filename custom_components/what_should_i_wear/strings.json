@@ -1,0 +1,97 @@
+{
+  "title": "What Should I Wear?",
+  "config": {
+    "step": {
+      "user": {
+        "title": "What Should I Wear?",
+        "description": "Pick the weather entity to base advice on and how far ahead to look. Add people (with their own comfort thresholds) afterwards.",
+        "data": {
+          "weather_entity": "Weather entity",
+          "lookahead_hours": "Lookahead",
+          "scan_interval": "Update interval"
+        },
+        "data_description": {
+          "weather_entity": "Must provide an hourly forecast (e.g. OpenWeatherMap).",
+          "lookahead_hours": "How many hours ahead the advice considers.",
+          "scan_interval": "How often the forecast is refreshed (seconds)."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "What Should I Wear? is already set up."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "What Should I Wear? settings",
+        "data": {
+          "weather_entity": "Weather entity",
+          "lookahead_hours": "Lookahead",
+          "scan_interval": "Update interval"
+        },
+        "data_description": {
+          "weather_entity": "Must provide an hourly forecast (e.g. OpenWeatherMap).",
+          "lookahead_hours": "How many hours ahead the advice considers.",
+          "scan_interval": "How often the forecast is refreshed (seconds)."
+        }
+      }
+    }
+  },
+  "config_subentries": {
+    "person": {
+      "title": "Person",
+      "initiate_flow": {
+        "user": "Add person",
+        "reconfigure": "Edit person"
+      },
+      "entry_type": "Person",
+      "step": {
+        "user": {
+          "title": "Add a person",
+          "description": "Set this person's comfort thresholds.",
+          "data": {
+            "name": "Name",
+            "sandals_min_temp": "Sandals from",
+            "jacket_max_temp": "Jacket below",
+            "rain_prob_threshold": "Rain gear from",
+            "umbrella_over_rainjacket": "Prefer umbrella over rain jacket"
+          },
+          "data_description": {
+            "sandals_min_temp": "Sandals are advised when it is at least this warm and dry.",
+            "jacket_max_temp": "A jacket is advised when it drops to this or below within the lookahead window.",
+            "rain_prob_threshold": "Rain gear is advised when precipitation probability reaches this.",
+            "umbrella_over_rainjacket": "When off, a rain jacket is recommended instead. In strong wind a rain jacket is always recommended."
+          }
+        },
+        "reconfigure": {
+          "title": "Edit person",
+          "description": "Adjust this person's comfort thresholds.",
+          "data": {
+            "name": "Name",
+            "sandals_min_temp": "Sandals from",
+            "jacket_max_temp": "Jacket below",
+            "rain_prob_threshold": "Rain gear from",
+            "umbrella_over_rainjacket": "Prefer umbrella over rain jacket"
+          },
+          "data_description": {
+            "sandals_min_temp": "Sandals are advised when it is at least this warm and dry.",
+            "jacket_max_temp": "A jacket is advised when it drops to this or below within the lookahead window.",
+            "rain_prob_threshold": "Rain gear is advised when precipitation probability reaches this.",
+            "umbrella_over_rainjacket": "When off, a rain jacket is recommended instead. In strong wind a rain jacket is always recommended."
+          }
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "sandals": { "name": "Sandals OK" },
+      "rain": { "name": "Rain protection" },
+      "jacket": { "name": "Jacket" }
+    },
+    "sensor": {
+      "summary": { "name": "What to wear" }
+    }
+  }
+}
