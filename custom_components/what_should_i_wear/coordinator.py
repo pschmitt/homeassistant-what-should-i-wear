@@ -21,9 +21,11 @@ from .advisor import ForecastHour, WeatherSnapshot
 from .const import (
     CONF_LOOKAHEAD_HOURS,
     CONF_SCAN_INTERVAL,
+    CONF_TEMPERATURE_ENTITY,
     CONF_WEATHER_ENTITY,
     DEFAULT_LOOKAHEAD_HOURS,
     DEFAULT_SCAN_INTERVAL,
+    DEFAULT_TEMPERATURE_ENTITY,
     DEFAULT_WEATHER_ENTITY,
     DOMAIN,
 )
@@ -56,6 +58,13 @@ class WswCoordinator(DataUpdateCoordinator[WeatherSnapshot]):
         )
 
     @property
+    def temperature_entity(self) -> str:
+        """Return the optional current-temperature sensor (empty = use weather)."""
+        return self.config_entry.options.get(
+            CONF_TEMPERATURE_ENTITY, DEFAULT_TEMPERATURE_ENTITY
+        )
+
+    @property
     def lookahead_hours(self) -> int:
         """Return how many hours ahead the advice considers."""
         return int(
@@ -76,10 +85,11 @@ class WswCoordinator(DataUpdateCoordinator[WeatherSnapshot]):
                 "wsw_weather_refresh",
             )
 
+        tracked = [self.weather_entity]
+        if self.temperature_entity:
+            tracked.append(self.temperature_entity)
         self.config_entry.async_on_unload(
-            async_track_state_change_event(
-                self.hass, [self.weather_entity], _on_weather_change
-            )
+            async_track_state_change_event(self.hass, tracked, _on_weather_change)
         )
 
     async def _async_update_data(self) -> WeatherSnapshot:
@@ -89,8 +99,20 @@ class WswCoordinator(DataUpdateCoordinator[WeatherSnapshot]):
         if state is None or state.state in ("unavailable", "unknown"):
             raise UpdateFailed(f"Weather entity {weather_entity} is unavailable")
 
-        temp_now = _as_float(state.attributes.get("temperature"))
         condition_now = state.state
+
+        # Current temperature: prefer the dedicated sensor (weather "now" values
+        # are often wrong/laggy); fall back to the weather entity's attribute.
+        temp_now = _as_float(state.attributes.get("temperature"))
+        if self.temperature_entity:
+            temp_state = self.hass.states.get(self.temperature_entity)
+            if temp_state is not None and temp_state.state not in (
+                "unavailable",
+                "unknown",
+            ):
+                override = _as_float(temp_state.state)
+                if override is not None:
+                    temp_now = override
 
         try:
             response = await self.hass.services.async_call(

@@ -113,6 +113,7 @@ class Advice:
     max_wind: float | None
     recommendation: str
     message: str
+    lines: list[str]  # the message split into one sentence per line
 
 
 def _fmt_temp(value: float | None) -> str:
@@ -131,12 +132,12 @@ def evaluate(snapshot: WeatherSnapshot, profile: PersonProfile) -> Advice:
     max_wind = snapshot.max_wind
 
     # --- Rain --------------------------------------------------------------
-    # Rain gear is warranted when any hour in the window is likely wet, or it
-    # is already raining now.
-    rainy_now = (snapshot.condition_now or "").startswith(
-        ("rain", "pouring", "lightning", "snowy-rainy", "hail")
-    )
-    rain_needed = rainy_now or (
+    # Driven purely by precipitation probability over the window vs the
+    # person's threshold. We intentionally do NOT trust the weather entity's
+    # current `condition` string ("rainy" etc.): some providers report a stale
+    # or coarse daily condition that contradicts a ~0% hourly precip forecast,
+    # which would override the user's threshold and advise rain gear on a dry day.
+    rain_needed = (
         max_precip is not None and max_precip >= profile.rain_prob_threshold
     )
 
@@ -175,13 +176,14 @@ def evaluate(snapshot: WeatherSnapshot, profile: PersonProfile) -> Advice:
         rain_needed=rain_needed,
         rain_gear=rain_gear,
     )
-    message = _build_message(
+    lines = _build_lines(
         snapshot=snapshot,
         sandals_ok=sandals_ok,
         jacket_needed=jacket_needed,
         rain_needed=rain_needed,
         rain_gear=rain_gear,
     )
+    message = " ".join(lines)
 
     return Advice(
         sandals_ok=sandals_ok,
@@ -196,6 +198,7 @@ def evaluate(snapshot: WeatherSnapshot, profile: PersonProfile) -> Advice:
         max_wind=max_wind,
         recommendation=recommendation,
         message=message,
+        lines=lines,
     )
 
 
@@ -212,21 +215,25 @@ def _build_recommendation(
     return " · ".join(parts)
 
 
-def _build_message(
+def _build_lines(
     *,
     snapshot: WeatherSnapshot,
     sandals_ok: bool,
     jacket_needed: bool,
     rain_needed: bool,
     rain_gear: str,
-) -> str:
-    """Build a friendly one-liner suitable for a Lovelace markdown card."""
+) -> list[str]:
+    """Build the advice as a list of sentences, one self-contained idea each.
+
+    Returned as separate lines so the frontend can render one sentence per
+    line (markdown) without it ellipsizing on a narrow mobile popup.
+    """
     temp_now = snapshot.temp_now
     temp_min = snapshot.temp_min
     temp_max = snapshot.temp_max
 
     if temp_now is None:
-        return "No weather data right now."
+        return ["No weather data right now."]
 
     sentences: list[str] = []
 
@@ -234,10 +241,10 @@ def _build_message(
     trend = ""
     if temp_min is not None and temp_max is not None:
         if round(temp_max) > round(temp_now):
-            trend = f", up to {_fmt_temp(temp_max)} over the next {snapshot.lookahead_hours} h"
+            trend = f", up to {_fmt_temp(temp_max)} over the next {snapshot.lookahead_hours} h"
         elif round(temp_min) < round(temp_now):
-            trend = f", down to {_fmt_temp(temp_min)} over the next {snapshot.lookahead_hours} h"
-    sentences.append(f"It's {_fmt_temp(temp_now)} now{trend}.")
+            trend = f", down to {_fmt_temp(temp_min)} over the next {snapshot.lookahead_hours} h"
+    sentences.append(f"🌡️ It's {_fmt_temp(temp_now)} now{trend}.")
 
     # Footwear + jacket.
     if sandals_ok:
@@ -254,4 +261,4 @@ def _build_message(
     else:
         sentences.append("☀️ Staying dry.")
 
-    return " ".join(sentences)
+    return sentences

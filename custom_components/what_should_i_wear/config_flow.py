@@ -37,6 +37,7 @@ from .const import (
     CONF_RAIN_PROB_THRESHOLD,
     CONF_SANDALS_MIN_TEMP,
     CONF_SCAN_INTERVAL,
+    CONF_TEMPERATURE_ENTITY,
     CONF_UMBRELLA_OVER_RAINJACKET,
     CONF_WEATHER_ENTITY,
     DEFAULT_JACKET_MAX_TEMP,
@@ -44,6 +45,7 @@ from .const import (
     DEFAULT_RAIN_PROB_THRESHOLD,
     DEFAULT_SANDALS_MIN_TEMP,
     DEFAULT_SCAN_INTERVAL,
+    DEFAULT_TEMPERATURE_ENTITY,
     DEFAULT_UMBRELLA_OVER_RAINJACKET,
     DEFAULT_WEATHER_ENTITY,
     DOMAIN,
@@ -64,6 +66,15 @@ def _hub_schema(defaults: dict[str, Any]) -> vol.Schema:
                 CONF_WEATHER_ENTITY,
                 default=defaults.get(CONF_WEATHER_ENTITY, DEFAULT_WEATHER_ENTITY),
             ): EntitySelector(EntitySelectorConfig(domain="weather")),
+            vol.Optional(
+                CONF_TEMPERATURE_ENTITY,
+                description={
+                    "suggested_value": defaults.get(CONF_TEMPERATURE_ENTITY)
+                    or None
+                },
+            ): EntitySelector(
+                EntitySelectorConfig(domain="sensor", device_class="temperature")
+            ),
             vol.Required(
                 CONF_LOOKAHEAD_HOURS,
                 default=defaults.get(
@@ -183,11 +194,7 @@ class WswConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_create_entry(
                 title=TITLE,
                 data={},
-                options={
-                    CONF_WEATHER_ENTITY: user_input[CONF_WEATHER_ENTITY],
-                    CONF_LOOKAHEAD_HOURS: int(user_input[CONF_LOOKAHEAD_HOURS]),
-                    CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL]),
-                },
+                options=_hub_options(user_input),
             )
 
         return self.async_show_form(step_id="user", data_schema=_hub_schema({}))
@@ -201,14 +208,7 @@ class WswOptionsFlow(OptionsFlow):
     ) -> ConfigFlowResult:
         """Manage the weather/lookahead settings."""
         if user_input is not None:
-            return self.async_create_entry(
-                title="",
-                data={
-                    CONF_WEATHER_ENTITY: user_input[CONF_WEATHER_ENTITY],
-                    CONF_LOOKAHEAD_HOURS: int(user_input[CONF_LOOKAHEAD_HOURS]),
-                    CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL]),
-                },
-            )
+            return self.async_create_entry(title="", data=_hub_options(user_input))
 
         return self.async_show_form(
             step_id="init",
@@ -250,6 +250,16 @@ class PersonSubentryFlowHandler(ConfigSubentryFlow):
         return self.async_show_form(
             step_id="reconfigure", data_schema=_person_schema(defaults)
         )
+
+
+def _hub_options(user_input: dict[str, Any]) -> dict[str, Any]:
+    """Coerce the hub form into clean, typed entry options."""
+    return {
+        CONF_WEATHER_ENTITY: user_input[CONF_WEATHER_ENTITY],
+        CONF_TEMPERATURE_ENTITY: user_input.get(CONF_TEMPERATURE_ENTITY) or "",
+        CONF_LOOKAHEAD_HOURS: int(user_input[CONF_LOOKAHEAD_HOURS]),
+        CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL]),
+    }
 
 
 def _normalize_person(user_input: dict[str, Any]) -> dict[str, Any]:

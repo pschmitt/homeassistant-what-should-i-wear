@@ -13,6 +13,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import WswConfigEntry
 from .const import (
+    ATTR_LINES,
     ATTR_LOOKAHEAD_HOURS,
     ATTR_MAX_PRECIP_PROB,
     ATTR_MAX_WIND,
@@ -76,6 +77,7 @@ class SummarySensor(WswPersonEntity, SensorEntity):
         return {
             ATTR_RECOMMENDATION: advice.recommendation,
             ATTR_MESSAGE: advice.message,
+            ATTR_LINES: advice.lines,
             ATTR_TEMP_NOW: advice.temp_now,
             ATTR_TEMP_MIN: advice.temp_min,
             ATTR_TEMP_MAX: advice.temp_max,

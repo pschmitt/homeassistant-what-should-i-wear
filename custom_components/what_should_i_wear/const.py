@@ -12,10 +12,15 @@ PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
 # ahead the advice should look. These are shared by every person.
 # ---------------------------------------------------------------------------
 CONF_WEATHER_ENTITY = "weather_entity"
+CONF_TEMPERATURE_ENTITY = "temperature_entity"
 CONF_LOOKAHEAD_HOURS = "lookahead_hours"
 CONF_SCAN_INTERVAL = "scan_interval"
 
 DEFAULT_WEATHER_ENTITY = "weather.openweathermap"
+# Optional: a real temperature sensor used for the *current* temperature.
+# Weather integrations can lag or be plain wrong for "now"; a local sensor is
+# usually far more accurate. Empty = read it off the weather entity instead.
+DEFAULT_TEMPERATURE_ENTITY = ""
 DEFAULT_LOOKAHEAD_HOURS = 6
 MIN_LOOKAHEAD_HOURS = 1
 MAX_LOOKAHEAD_HOURS = 24
@@ -54,6 +59,7 @@ ITEM_JACKET = "jacket"
 # Entity state attributes.
 # ---------------------------------------------------------------------------
 ATTR_MESSAGE = "message"
+ATTR_LINES = "lines"
 ATTR_RECOMMENDATION = "recommendation"
 ATTR_TEMP_NOW = "temperature_now"
 ATTR_TEMP_MIN = "temperature_min"

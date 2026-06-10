@@ -7,11 +7,13 @@
         "description": "Pick the weather entity to base advice on and how far ahead to look. Add people (with their own comfort thresholds) afterwards.",
         "data": {
           "weather_entity": "Weather entity",
+          "temperature_entity": "Current temperature sensor (optional)",
           "lookahead_hours": "Lookahead",
           "scan_interval": "Update interval"
         },
         "data_description": {
-          "weather_entity": "Must provide an hourly forecast (e.g. OpenWeatherMap).",
+          "weather_entity": "Must provide an hourly forecast (e.g. PirateWeather/OpenWeatherMap).",
+          "temperature_entity": "A real sensor for the current temperature. Weather 'now' values are often wrong; leave empty to use the weather entity.",
           "lookahead_hours": "How many hours ahead the advice considers.",
           "scan_interval": "How often the forecast is refreshed (seconds)."
         }
@@ -27,11 +29,13 @@
         "title": "What Should I Wear? settings",
         "data": {
           "weather_entity": "Weather entity",
+          "temperature_entity": "Current temperature sensor (optional)",
           "lookahead_hours": "Lookahead",
           "scan_interval": "Update interval"
         },
         "data_description": {
-          "weather_entity": "Must provide an hourly forecast (e.g. OpenWeatherMap).",
+          "weather_entity": "Must provide an hourly forecast (e.g. PirateWeather/OpenWeatherMap).",
+          "temperature_entity": "A real sensor for the current temperature. Weather 'now' values are often wrong; leave empty to use the weather entity.",
           "lookahead_hours": "How many hours ahead the advice considers.",
           "scan_interval": "How often the forecast is refreshed (seconds)."
         }
