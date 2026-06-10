@@ -54,7 +54,6 @@ class SummarySensor(WswPersonEntity, SensorEntity):
     """A short, human-readable 'what to wear' recommendation."""
 
     _attr_translation_key = "summary"
-    _attr_name = "What to wear"
     _attr_icon = "mdi:hanger"
 
     def __init__(self, coordinator: WswCoordinator, subentry_id, profile) -> None:

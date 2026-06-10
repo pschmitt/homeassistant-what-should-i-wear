@@ -97,6 +97,14 @@ class WswCoordinator(DataUpdateCoordinator[WeatherSnapshot]):
         weather_entity = self.weather_entity
         state = self.hass.states.get(weather_entity)
         if state is None or state.state in ("unavailable", "unknown"):
+            # Weather entities blip unavailable routinely (provider refresh,
+            # startup ordering) — keep the last snapshot instead of erroring.
+            if self.data is not None:
+                _LOGGER.debug(
+                    "Weather entity %s is unavailable; keeping last snapshot",
+                    weather_entity,
+                )
+                return self.data
             raise UpdateFailed(f"Weather entity {weather_entity} is unavailable")
 
         condition_now = state.state
@@ -140,6 +148,9 @@ class WswCoordinator(DataUpdateCoordinator[WeatherSnapshot]):
     def _trim_forecast(self, forecast: list[dict]) -> list[ForecastHour]:
         """Keep only future forecast points within the lookahead window."""
         now = dt_util.utcnow()
+        # Include the current hour's point (timestamped at the top of the
+        # hour) so rain falling right now still influences the advice.
+        start = now.replace(minute=0, second=0, microsecond=0)
         cutoff = now + timedelta(hours=self.lookahead_hours)
         hours: list[ForecastHour] = []
         for item in forecast:
@@ -148,7 +159,7 @@ class WswCoordinator(DataUpdateCoordinator[WeatherSnapshot]):
             if when is None:
                 continue
             when = dt_util.as_utc(when)
-            if when <= now or when > cutoff:
+            if when < start or when > cutoff:
                 continue
             hours.append(
                 ForecastHour(

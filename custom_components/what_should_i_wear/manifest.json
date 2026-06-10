@@ -15,5 +15,6 @@
   "after_dependencies": [
     "weather"
   ],
+  "single_config_entry": true,
   "version": "0.1.0"
 }

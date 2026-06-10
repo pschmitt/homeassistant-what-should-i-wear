@@ -55,7 +55,6 @@ class SandalsBinarySensor(WswPersonEntity, BinarySensorEntity):
     """On when it is warm and dry enough for sandals."""
 
     _attr_translation_key = ITEM_SANDALS
-    _attr_name = "Sandals OK"
 
     def __init__(self, coordinator: WswCoordinator, subentry_id, profile) -> None:
         """Initialize the sensor."""
@@ -90,7 +89,6 @@ class RainBinarySensor(WswPersonEntity, BinarySensorEntity):
     """On when rain gear (umbrella or rain jacket) is warranted."""
 
     _attr_translation_key = ITEM_RAIN
-    _attr_name = "Rain protection"
 
     def __init__(self, coordinator: WswCoordinator, subentry_id, profile) -> None:
         """Initialize the sensor."""
@@ -132,7 +130,6 @@ class JacketBinarySensor(WswPersonEntity, BinarySensorEntity):
     """On when it gets cold enough to want a jacket within the window."""
 
     _attr_translation_key = ITEM_JACKET
-    _attr_name = "Jacket"
 
     def __init__(self, coordinator: WswCoordinator, subentry_id, profile) -> None:
         """Initialize the sensor."""
