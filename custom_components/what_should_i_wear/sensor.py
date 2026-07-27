@@ -21,6 +21,7 @@ from .const import (
     ATTR_PRIMARY_INFO,
     ATTR_RAIN_GEAR,
     ATTR_RAIN_STARTS,
+    ATTR_RAIN_STARTS_IN,
     ATTR_RECOMMENDATION,
     ATTR_SECONDARY_INFO,
     ATTR_TEMP_MAX,
@@ -85,6 +86,11 @@ class SummarySensor(WswPersonEntity, SensorEntity):
             ATTR_RAIN_GEAR: advice.rain_gear or None,
             ATTR_RAIN_STARTS: (
                 advice.rain_starts.isoformat() if advice.rain_starts else None
+            ),
+            ATTR_RAIN_STARTS_IN: (
+                int(advice.rain_starts_in.total_seconds())
+                if advice.rain_starts_in is not None
+                else None
             ),
             ATTR_LOOKAHEAD_HOURS: self.coordinator.lookahead_hours,
             # Convenience aliases for markdown / button cards.

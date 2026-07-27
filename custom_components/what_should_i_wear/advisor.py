@@ -9,7 +9,7 @@ snapshot plus a person's :class:`PersonProfile` into an :class:`Advice`.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from .const import (
     DEFAULT_JACKET_MAX_TEMP,
@@ -106,6 +106,7 @@ class Advice:
     jacket_needed: bool
     rain_gear: str  # "umbrella", "rain jacket", or "" when no rain expected
     rain_starts: datetime | None
+    rain_starts_in: timedelta | None
     temp_now: float | None
     temp_min: float | None
     temp_max: float | None
@@ -150,6 +151,13 @@ def evaluate(snapshot: WeatherSnapshot, profile: PersonProfile) -> Advice:
             rain_starts = hour.datetime
             break
 
+    # How far out that is, relative to the window's current-hour point, so
+    # the message can say "now" vs "in about N hours" instead of a bare
+    # timestamp (avoids timezone conversion — everything stays relative).
+    rain_starts_in: timedelta | None = None
+    if rain_starts is not None and snapshot.hours:
+        rain_starts_in = rain_starts - snapshot.hours[0].datetime
+
     rain_gear = ""
     if rain_needed:
         windy = max_wind is not None and max_wind >= WIND_UMBRELLA_USELESS
@@ -182,6 +190,7 @@ def evaluate(snapshot: WeatherSnapshot, profile: PersonProfile) -> Advice:
         jacket_needed=jacket_needed,
         rain_needed=rain_needed,
         rain_gear=rain_gear,
+        rain_starts_in=rain_starts_in,
     )
     message = " ".join(lines)
 
@@ -191,6 +200,7 @@ def evaluate(snapshot: WeatherSnapshot, profile: PersonProfile) -> Advice:
         jacket_needed=jacket_needed,
         rain_gear=rain_gear,
         rain_starts=rain_starts,
+        rain_starts_in=rain_starts_in,
         temp_now=temp_now,
         temp_min=temp_min,
         temp_max=temp_max,
@@ -215,6 +225,18 @@ def _build_recommendation(
     return " · ".join(parts)
 
 
+def _fmt_rain_timing(rain_starts_in: timedelta | None) -> str:
+    """Render a short 'when' clause for the rain sentence, e.g. ' in about 2 hours'."""
+    if rain_starts_in is None:
+        return ""
+    hours_until = round(rain_starts_in.total_seconds() / 3600)
+    if hours_until <= 0:
+        return " now"
+    if hours_until == 1:
+        return " in about 1 hour"
+    return f" in about {hours_until} hours"
+
+
 def _build_lines(
     *,
     snapshot: WeatherSnapshot,
@@ -222,6 +244,7 @@ def _build_lines(
     jacket_needed: bool,
     rain_needed: bool,
     rain_gear: str,
+    rain_starts_in: timedelta | None = None,
 ) -> list[str]:
     """Build the advice as a list of sentences, one self-contained idea each.
 
@@ -257,7 +280,8 @@ def _build_lines(
     # Rain.
     if rain_needed:
         gear = "a rain jacket" if rain_gear == RAIN_JACKET else "an umbrella"
-        sentences.append(f"☔ Rain likely — take {gear}.")
+        timing = _fmt_rain_timing(rain_starts_in)
+        sentences.append(f"☔ Rain likely{timing} — take {gear}.")
     else:
         sentences.append("☀️ Staying dry.")
 

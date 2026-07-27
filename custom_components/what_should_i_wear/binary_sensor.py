@@ -18,6 +18,7 @@ from .const import (
     ATTR_MESSAGE,
     ATTR_RAIN_GEAR,
     ATTR_RAIN_STARTS,
+    ATTR_RAIN_STARTS_IN,
     ATTR_TEMP_MIN,
     ATTR_TEMP_NOW,
     ITEM_JACKET,
@@ -121,6 +122,11 @@ class RainBinarySensor(WswPersonEntity, BinarySensorEntity):
             ATTR_MAX_WIND: advice.max_wind,
             ATTR_RAIN_STARTS: (
                 advice.rain_starts.isoformat() if advice.rain_starts else None
+            ),
+            ATTR_RAIN_STARTS_IN: (
+                int(advice.rain_starts_in.total_seconds())
+                if advice.rain_starts_in is not None
+                else None
             ),
             ATTR_MESSAGE: advice.message,
         }
