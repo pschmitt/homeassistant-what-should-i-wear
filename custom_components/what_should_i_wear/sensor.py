@@ -84,9 +84,7 @@ class SummarySensor(WswPersonEntity, SensorEntity):
             ATTR_MAX_PRECIP_PROB: advice.max_precip_prob,
             ATTR_MAX_WIND: advice.max_wind,
             ATTR_RAIN_GEAR: advice.rain_gear or None,
-            ATTR_RAIN_STARTS: (
-                advice.rain_starts.isoformat() if advice.rain_starts else None
-            ),
+            ATTR_RAIN_STARTS: (advice.rain_starts.isoformat() if advice.rain_starts else None),
             ATTR_RAIN_STARTS_IN: (
                 int(advice.rain_starts_in.total_seconds())
                 if advice.rain_starts_in is not None

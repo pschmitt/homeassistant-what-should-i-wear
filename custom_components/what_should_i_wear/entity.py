@@ -26,19 +26,11 @@ def profile_from_subentry(subentry: ConfigSubentry) -> PersonProfile:
     data = subentry.data
     return PersonProfile(
         name=subentry.title,
-        sandals_min_temp=float(
-            data.get(CONF_SANDALS_MIN_TEMP, DEFAULT_SANDALS_MIN_TEMP)
-        ),
-        jacket_max_temp=float(
-            data.get(CONF_JACKET_MAX_TEMP, DEFAULT_JACKET_MAX_TEMP)
-        ),
-        rain_prob_threshold=float(
-            data.get(CONF_RAIN_PROB_THRESHOLD, DEFAULT_RAIN_PROB_THRESHOLD)
-        ),
+        sandals_min_temp=float(data.get(CONF_SANDALS_MIN_TEMP, DEFAULT_SANDALS_MIN_TEMP)),
+        jacket_max_temp=float(data.get(CONF_JACKET_MAX_TEMP, DEFAULT_JACKET_MAX_TEMP)),
+        rain_prob_threshold=float(data.get(CONF_RAIN_PROB_THRESHOLD, DEFAULT_RAIN_PROB_THRESHOLD)),
         umbrella_over_rainjacket=bool(
-            data.get(
-                CONF_UMBRELLA_OVER_RAINJACKET, DEFAULT_UMBRELLA_OVER_RAINJACKET
-            )
+            data.get(CONF_UMBRELLA_OVER_RAINJACKET, DEFAULT_UMBRELLA_OVER_RAINJACKET)
         ),
     )
 
@@ -78,8 +70,4 @@ class WswPersonEntity(CoordinatorEntity[WswCoordinator]):
     def available(self) -> bool:
         """Available only once we have a usable weather snapshot."""
         snapshot = self.coordinator.data
-        return (
-            super().available
-            and snapshot is not None
-            and snapshot.temp_now is not None
-        )
+        return super().available and snapshot is not None and snapshot.temp_now is not None

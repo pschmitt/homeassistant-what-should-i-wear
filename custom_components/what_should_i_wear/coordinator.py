@@ -44,34 +44,24 @@ class WswCoordinator(DataUpdateCoordinator[WeatherSnapshot]):
             name=DOMAIN,
             config_entry=config_entry,
             update_interval=timedelta(
-                seconds=config_entry.options.get(
-                    CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
-                )
+                seconds=config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
             ),
         )
 
     @property
     def weather_entity(self) -> str:
         """Return the configured weather entity id."""
-        return self.config_entry.options.get(
-            CONF_WEATHER_ENTITY, DEFAULT_WEATHER_ENTITY
-        )
+        return self.config_entry.options.get(CONF_WEATHER_ENTITY, DEFAULT_WEATHER_ENTITY)
 
     @property
     def temperature_entity(self) -> str:
         """Return the optional current-temperature sensor (empty = use weather)."""
-        return self.config_entry.options.get(
-            CONF_TEMPERATURE_ENTITY, DEFAULT_TEMPERATURE_ENTITY
-        )
+        return self.config_entry.options.get(CONF_TEMPERATURE_ENTITY, DEFAULT_TEMPERATURE_ENTITY)
 
     @property
     def lookahead_hours(self) -> int:
         """Return how many hours ahead the advice considers."""
-        return int(
-            self.config_entry.options.get(
-                CONF_LOOKAHEAD_HOURS, DEFAULT_LOOKAHEAD_HOURS
-            )
-        )
+        return int(self.config_entry.options.get(CONF_LOOKAHEAD_HOURS, DEFAULT_LOOKAHEAD_HOURS))
 
     @callback
     def async_setup_listeners(self) -> None:
@@ -165,9 +155,7 @@ class WswCoordinator(DataUpdateCoordinator[WeatherSnapshot]):
                 ForecastHour(
                     datetime=when,
                     temperature=_as_float(item.get("temperature")),
-                    precipitation_probability=_as_float(
-                        item.get("precipitation_probability")
-                    ),
+                    precipitation_probability=_as_float(item.get("precipitation_probability")),
                     wind_speed=_as_float(item.get("wind_speed")),
                     condition=item.get("condition"),
                 )

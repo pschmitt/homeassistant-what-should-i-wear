@@ -138,9 +138,7 @@ def evaluate(snapshot: WeatherSnapshot, profile: PersonProfile) -> Advice:
     # current `condition` string ("rainy" etc.): some providers report a stale
     # or coarse daily condition that contradicts a ~0% hourly precip forecast,
     # which would override the user's threshold and advise rain gear on a dry day.
-    rain_needed = (
-        max_precip is not None and max_precip >= profile.rain_prob_threshold
-    )
+    rain_needed = max_precip is not None and max_precip >= profile.rain_prob_threshold
 
     # First upcoming hour that crosses the person's rain threshold, so the UI
     # can say *when* to grab the umbrella.
@@ -168,11 +166,7 @@ def evaluate(snapshot: WeatherSnapshot, profile: PersonProfile) -> Advice:
 
     # --- Footwear ----------------------------------------------------------
     # Sandals only if it is comfortably warm right now and staying dry.
-    sandals_ok = (
-        temp_now is not None
-        and temp_now >= profile.sandals_min_temp
-        and not rain_needed
-    )
+    sandals_ok = temp_now is not None and temp_now >= profile.sandals_min_temp and not rain_needed
 
     # --- Jacket ------------------------------------------------------------
     # Recommend a jacket if it gets cold enough at any point in the window.

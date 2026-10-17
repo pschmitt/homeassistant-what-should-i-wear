@@ -10,7 +10,6 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
-
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
@@ -45,7 +44,6 @@ from .const import (
     DEFAULT_RAIN_PROB_THRESHOLD,
     DEFAULT_SANDALS_MIN_TEMP,
     DEFAULT_SCAN_INTERVAL,
-    DEFAULT_TEMPERATURE_ENTITY,
     DEFAULT_UMBRELLA_OVER_RAINJACKET,
     DEFAULT_WEATHER_ENTITY,
     DOMAIN,
@@ -68,18 +66,11 @@ def _hub_schema(defaults: dict[str, Any]) -> vol.Schema:
             ): EntitySelector(EntitySelectorConfig(domain="weather")),
             vol.Optional(
                 CONF_TEMPERATURE_ENTITY,
-                description={
-                    "suggested_value": defaults.get(CONF_TEMPERATURE_ENTITY)
-                    or None
-                },
-            ): EntitySelector(
-                EntitySelectorConfig(domain="sensor", device_class="temperature")
-            ),
+                description={"suggested_value": defaults.get(CONF_TEMPERATURE_ENTITY) or None},
+            ): EntitySelector(EntitySelectorConfig(domain="sensor", device_class="temperature")),
             vol.Required(
                 CONF_LOOKAHEAD_HOURS,
-                default=defaults.get(
-                    CONF_LOOKAHEAD_HOURS, DEFAULT_LOOKAHEAD_HOURS
-                ),
+                default=defaults.get(CONF_LOOKAHEAD_HOURS, DEFAULT_LOOKAHEAD_HOURS),
             ): NumberSelector(
                 NumberSelectorConfig(
                     min=MIN_LOOKAHEAD_HOURS,
@@ -108,14 +99,10 @@ def _person_schema(defaults: dict[str, Any]) -> vol.Schema:
     """Schema for a person's comfort thresholds."""
     return vol.Schema(
         {
-            vol.Required(
-                CONF_NAME, default=defaults.get(CONF_NAME, "")
-            ): TextSelector(),
+            vol.Required(CONF_NAME, default=defaults.get(CONF_NAME, "")): TextSelector(),
             vol.Required(
                 CONF_SANDALS_MIN_TEMP,
-                default=defaults.get(
-                    CONF_SANDALS_MIN_TEMP, DEFAULT_SANDALS_MIN_TEMP
-                ),
+                default=defaults.get(CONF_SANDALS_MIN_TEMP, DEFAULT_SANDALS_MIN_TEMP),
             ): NumberSelector(
                 NumberSelectorConfig(
                     min=0,
@@ -127,9 +114,7 @@ def _person_schema(defaults: dict[str, Any]) -> vol.Schema:
             ),
             vol.Required(
                 CONF_JACKET_MAX_TEMP,
-                default=defaults.get(
-                    CONF_JACKET_MAX_TEMP, DEFAULT_JACKET_MAX_TEMP
-                ),
+                default=defaults.get(CONF_JACKET_MAX_TEMP, DEFAULT_JACKET_MAX_TEMP),
             ): NumberSelector(
                 NumberSelectorConfig(
                     min=-10,
@@ -141,9 +126,7 @@ def _person_schema(defaults: dict[str, Any]) -> vol.Schema:
             ),
             vol.Required(
                 CONF_RAIN_PROB_THRESHOLD,
-                default=defaults.get(
-                    CONF_RAIN_PROB_THRESHOLD, DEFAULT_RAIN_PROB_THRESHOLD
-                ),
+                default=defaults.get(CONF_RAIN_PROB_THRESHOLD, DEFAULT_RAIN_PROB_THRESHOLD),
             ): NumberSelector(
                 NumberSelectorConfig(
                     min=0,
@@ -183,9 +166,7 @@ class WswConfigFlow(ConfigFlow, domain=DOMAIN):
         """Person profiles are managed as subentries."""
         return {SUBENTRY_TYPE_PERSON: PersonSubentryFlowHandler}
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle the single-instance setup step."""
         await self.async_set_unique_id(DOMAIN)
         self._abort_if_unique_id_configured()
@@ -203,9 +184,7 @@ class WswConfigFlow(ConfigFlow, domain=DOMAIN):
 class WswOptionsFlow(OptionsFlow):
     """Handle the shared options for What Should I Wear?."""
 
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Manage the weather/lookahead settings."""
         if user_input is not None:
             return self.async_create_entry(title="", data=_hub_options(user_input))
@@ -219,9 +198,7 @@ class WswOptionsFlow(OptionsFlow):
 class PersonSubentryFlowHandler(ConfigSubentryFlow):
     """Add or reconfigure a person profile."""
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> SubentryFlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> SubentryFlowResult:
         """Add a new person."""
         if user_input is not None:
             return self.async_create_entry(
@@ -229,9 +206,7 @@ class PersonSubentryFlowHandler(ConfigSubentryFlow):
                 data=_normalize_person(user_input),
             )
 
-        return self.async_show_form(
-            step_id="user", data_schema=_person_schema({})
-        )
+        return self.async_show_form(step_id="user", data_schema=_person_schema({}))
 
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
@@ -247,9 +222,7 @@ class PersonSubentryFlowHandler(ConfigSubentryFlow):
             )
 
         defaults = {CONF_NAME: subentry.title, **subentry.data}
-        return self.async_show_form(
-            step_id="reconfigure", data_schema=_person_schema(defaults)
-        )
+        return self.async_show_form(step_id="reconfigure", data_schema=_person_schema(defaults))
 
 
 def _hub_options(user_input: dict[str, Any]) -> dict[str, Any]:
@@ -269,7 +242,5 @@ def _normalize_person(user_input: dict[str, Any]) -> dict[str, Any]:
         CONF_SANDALS_MIN_TEMP: float(user_input[CONF_SANDALS_MIN_TEMP]),
         CONF_JACKET_MAX_TEMP: float(user_input[CONF_JACKET_MAX_TEMP]),
         CONF_RAIN_PROB_THRESHOLD: float(user_input[CONF_RAIN_PROB_THRESHOLD]),
-        CONF_UMBRELLA_OVER_RAINJACKET: bool(
-            user_input[CONF_UMBRELLA_OVER_RAINJACKET]
-        ),
+        CONF_UMBRELLA_OVER_RAINJACKET: bool(user_input[CONF_UMBRELLA_OVER_RAINJACKET]),
     }
