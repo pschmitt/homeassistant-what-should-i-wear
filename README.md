@@ -1,5 +1,7 @@
 # What Should I Wear? — Home Assistant integration
 
+[![Open this integration in Home Assistant Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=pschmitt&repository=homeassistant-what-should-i-wear&category=integration)
+
 <img src="custom_components/what_should_i_wear/brand/icon.png" width="96" align="right" alt="What Should I Wear? icon">
 
 A tiny outfit advisor for Home Assistant. It reads an **hourly weather
@@ -26,6 +28,14 @@ say "sandals fine" for one person and "bring a jacket" for another.
     message and all the driving numbers as attributes.
 
 In strong wind, rain advice automatically flips from umbrella to rain jacket.
+
+## Installation
+
+Use the badge above to add this repository as a custom integration in Home
+Assistant Marketplace (Home Assistant 2026.11 or later), then install What
+Should I Wear?. On older versions, add it as a custom repository under
+**HACS → Integrations → ⋮ → Custom repositories** with category **Integration**.
+Restart Home Assistant.
 
 ## Configuration
 
